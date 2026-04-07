@@ -6,6 +6,7 @@ db_manager.py
 import sqlite3
 import os
 from datetime import datetime
+from typing import Tuple
 
 CURRENT_SCHEMA_VERSION = 1
 
@@ -100,7 +101,7 @@ def create_new_database(db_path: str):
     conn.close()
 
 
-def validate_and_migrate(db_path: str) -> tuple[bool, str]:
+def validate_and_migrate(db_path: str) -> Tuple[bool, str]:
     """
     Ελέγχει αν η βάση είναι συμβατή.
     Επιστρέφει (True, '') αν είναι OK, ή (False, μήνυμα_σφάλματος).

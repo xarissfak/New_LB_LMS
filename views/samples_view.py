@@ -85,7 +85,7 @@ class SamplesView(QWidget):
         self.batch_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.batch_table.setAlternatingRowColors(True)
         self.batch_table.verticalHeader().setVisible(False)
-        self.batch_table.currentRowChanged.connect(self._batch_selected)
+        self.batch_table.itemSelectionChanged.connect(self._batch_selected)
         left_layout.addWidget(self.batch_table)
 
         splitter.addWidget(left)
@@ -164,7 +164,8 @@ class SamplesView(QWidget):
             t.setItem(row, 2, QTableWidgetItem(b['received_date']))
             t.setItem(row, 3, QTableWidgetItem(str(b['sample_count'])))
 
-    def _batch_selected(self, row):
+    def _batch_selected(self):
+        row = self.batch_table.currentRow()
         if row < 0 or row >= len(self.batches_data):
             return
         self.current_batch = self.batches_data[row]
