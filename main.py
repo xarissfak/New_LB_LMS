@@ -3,21 +3,20 @@ main.py
 Σημείο εκκίνησης εφαρμογής LabTrack.
 
 Εγκατάσταση:
-    pip install PyQt6
+    pip install PyQt5
 
 Εκτέλεση:
     python main.py
 """
-
 import sys
 import os
 
 # Βεβαιωνόμαστε ότι το working directory είναι το root του project
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtGui import QPalette, QColor
-from PyQt6.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtCore import Qt
 
 from dialogs.startup_dialog import StartupDialog
 from views.main_window import MainWindow
@@ -58,11 +57,11 @@ def main():
     apply_global_style(app)
 
     startup = StartupDialog()
-    if startup.exec():
+    if startup.exec_():
         db_path = startup.selected_db_path
         window = MainWindow(db_path)
         window.show()
-        sys.exit(app.exec())
+        sys.exit(app.exec_())
     else:
         sys.exit(0)
 

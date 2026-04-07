@@ -6,7 +6,7 @@ Export δεδομένων σε CSV και Excel.
 import csv
 import os
 from datetime import datetime
-from PyQt6.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 from database.db_manager import status_label
 from models.crud import get_all_samples, get_all_batches, get_sample_history

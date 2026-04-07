@@ -3,13 +3,13 @@ master_data_view.py
 Οθόνη διαχείρισης Master Data (Πελάτες, Αναλυτές, Αναλύσεις).
 """
 
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget,
     QTableWidget, QTableWidgetItem, QHeaderView,
     QPushButton, QMessageBox, QAbstractItemView
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 
 from models.crud import (
     get_all_clients, add_client, update_client, delete_client,
@@ -77,9 +77,9 @@ class MasterDataView(QWidget):
         self.clients_table.setHorizontalHeaderLabels(
             ["ID", "Όνομα", "Κωδικός", "Επαφή", "Email", "Τηλέφωνο"]
         )
-        self.clients_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.clients_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.clients_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.clients_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.clients_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.clients_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.clients_table.setAlternatingRowColors(True)
         self.clients_table.verticalHeader().setVisible(False)
         self.clients_table.doubleClicked.connect(self._edit_client)
@@ -103,7 +103,7 @@ class MasterDataView(QWidget):
 
     def _add_client(self):
         dlg = ClientDialog(self)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             try:
                 add_client(self.db_path, **d)
@@ -118,7 +118,7 @@ class MasterDataView(QWidget):
             return
         c = self.clients_data[row]
         dlg = ClientDialog(self, data=c)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             try:
                 update_client(self.db_path, c['id'], **d)
@@ -134,8 +134,8 @@ class MasterDataView(QWidget):
         if QMessageBox.question(
             self, "Διαγραφή",
             f"Διαγραφή πελάτη '{c['name']}';\n(Μόνο αν δεν έχει batches)",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+            QMessageBox.Yes | QMessageBox.No
+        ) == QMessageBox.Yes:
             try:
                 delete_client(self.db_path, c['id'])
                 self._load_clients()
@@ -166,9 +166,9 @@ class MasterDataView(QWidget):
         self.analysts_table.setHorizontalHeaderLabels(
             ["ID", "Όνομα", "Email", "Τηλέφωνο", "Ενεργός"]
         )
-        self.analysts_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.analysts_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.analysts_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.analysts_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.analysts_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.analysts_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.analysts_table.setAlternatingRowColors(True)
         self.analysts_table.verticalHeader().setVisible(False)
         self.analysts_table.doubleClicked.connect(self._edit_analyst)
@@ -191,7 +191,7 @@ class MasterDataView(QWidget):
 
     def _add_analyst(self):
         dlg = AnalystDialog(self)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             add_analyst(self.db_path, **d)
             self._load_analysts()
@@ -203,7 +203,7 @@ class MasterDataView(QWidget):
             return
         a = self.analysts_data[row]
         dlg = AnalystDialog(self, data=a)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             update_analyst(self.db_path, a['id'], **d)
             self._load_analysts()
@@ -215,8 +215,8 @@ class MasterDataView(QWidget):
         a = self.analysts_data[row]
         if QMessageBox.question(
             self, "Διαγραφή", f"Διαγραφή αναλυτή '{a['name']}';",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+            QMessageBox.Yes | QMessageBox.No
+        ) == QMessageBox.Yes:
             try:
                 delete_analyst(self.db_path, a['id'])
                 self._load_analysts()
@@ -247,9 +247,9 @@ class MasterDataView(QWidget):
         self.at_table.setHorizontalHeaderLabels([
             "ID", "Όνομα", "Επώαση (h)", "Θερμ. (°C)", "Αναμ. (d)", "Μονάδα", "Περιγραφή"
         ])
-        self.at_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.at_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.at_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.at_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.at_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.at_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.at_table.setAlternatingRowColors(True)
         self.at_table.verticalHeader().setVisible(False)
         self.at_table.doubleClicked.connect(self._edit_analysis_type)
@@ -274,7 +274,7 @@ class MasterDataView(QWidget):
 
     def _add_analysis_type(self):
         dlg = AnalysisTypeDialog(self)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             try:
                 add_analysis_type(self.db_path, **d)
@@ -289,7 +289,7 @@ class MasterDataView(QWidget):
             return
         a = self.at_data[row]
         dlg = AnalysisTypeDialog(self, data=a)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             try:
                 update_analysis_type(self.db_path, a['id'], **d)
@@ -304,8 +304,8 @@ class MasterDataView(QWidget):
         a = self.at_data[row]
         if QMessageBox.question(
             self, "Διαγραφή", f"Διαγραφή ανάλυσης '{a['name']}';",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+            QMessageBox.Yes | QMessageBox.No
+        ) == QMessageBox.Yes:
             try:
                 delete_analysis_type(self.db_path, a['id'])
                 self._load_analysis_types()

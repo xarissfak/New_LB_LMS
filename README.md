@@ -1,24 +1,29 @@
 # 🧪 LabTrack — Mini LIMS
 
-Εφαρμογή διαχείρισης δειγμάτων εργαστηρίου (Python + PyQt6 + SQLite).
+Εφαρμογή διαχείρισης δειγμάτων εργαστηρίου με τη βιβλιοθήκη PyQt5 και SQLite.
 
 ## Εγκατάσταση
 
 ```bash
-pip install PyQt6
+pip install -r requirements.txt
+```
+
+> Αν θέλεις μόνο το GUI, μπορείς επίσης να εγκαταστήσεις απευθείας την PyQt5:
+
+```bash
+pip install PyQt5
 ```
 
 ## Εκτέλεση
 
 ```bash
-cd lab_lims
 python main.py
 ```
 
 ## Δομή Project
 
 ```
-lab_lims/
+./
 ├── main.py                        # Σημείο εκκίνησης
 ├── requirements.txt
 ├── database/

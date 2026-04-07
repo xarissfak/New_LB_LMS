@@ -3,15 +3,15 @@ batch_sample_dialogs.py
 Διάλογοι για Batch και Sample creation / status update / result entry.
 """
 
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLineEdit, QTextEdit, QComboBox, QDateEdit,
     QPushButton, QLabel, QMessageBox, QTableWidget,
     QTableWidgetItem, QHeaderView, QFrame, QSplitter,
     QListWidget, QListWidgetItem, QAbstractItemView
 )
-from PyQt6.QtCore import Qt, QDate
-from PyQt6.QtGui import QColor, QFont
+from PyQt5.QtCore import Qt, QDate
+from PyQt5.QtGui import QColor, QFont
 
 from database.db_manager import STATUSES, STATUS_COLORS, status_label
 from models.crud import (
@@ -47,7 +47,7 @@ class BatchDialog(QDialog):
         layout.setSpacing(12)
 
         form = QFormLayout()
-        form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        form.setLabelAlignment(Qt.AlignRight)
 
         # Πελάτης
         self.client_combo = QComboBox()
@@ -133,7 +133,7 @@ class AddSampleDialog(QDialog):
         layout.setSpacing(12)
 
         form = QFormLayout()
-        form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        form.setLabelAlignment(Qt.AlignRight)
 
         # Κωδικός δείγματος
         self.sample_code = QLineEdit()
@@ -250,7 +250,7 @@ class StatusUpdateDialog(QDialog):
         layout.addWidget(cur)
 
         form = QFormLayout()
-        form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        form.setLabelAlignment(Qt.AlignRight)
 
         # Νέα κατάσταση
         self.status_combo = QComboBox()
@@ -324,7 +324,7 @@ class ResultDialog(QDialog):
         layout.addWidget(info)
 
         form = QFormLayout()
-        form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        form.setLabelAlignment(Qt.AlignRight)
 
         self.result_value = QLineEdit(self.sample.get("result_value") or "")
         self.result_value.setPlaceholderText("π.χ. 150, <10, Αρνητικό...")
@@ -401,8 +401,8 @@ class HistoryDialog(QDialog):
         table = QTableWidget()
         table.setColumnCount(4)
         table.setHorizontalHeaderLabels(["Ημ/νία", "Κατάσταση", "Αναλυτής", "Σημείωση"])
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         table.setAlternatingRowColors(True)
         table.verticalHeader().setVisible(False)
 
@@ -422,4 +422,4 @@ class HistoryDialog(QDialog):
 
         close = _btn("Κλείσιμο", "#95a5a6", "#7f8c8d")
         close.clicked.connect(self.accept)
-        layout.addWidget(close, alignment=Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(close, alignment=Qt.AlignRight)

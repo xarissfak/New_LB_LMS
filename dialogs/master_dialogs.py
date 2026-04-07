@@ -4,12 +4,12 @@ master_dialogs.py
   ClientDialog, AnalystDialog, AnalysisTypeDialog
 """
 
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLineEdit, QTextEdit, QDoubleSpinBox, QSpinBox,
     QPushButton, QLabel, QMessageBox, QDialogButtonBox
 )
-from PyQt6.QtCore import Qt
+from PyQt5.QtCore import Qt
 
 
 def _styled_btn(text, color, hover):
@@ -39,7 +39,7 @@ class ClientDialog(QDialog):
         layout.setSpacing(12)
 
         form = QFormLayout()
-        form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        form.setLabelAlignment(Qt.AlignRight)
 
         self.name = QLineEdit(self.data.get("name", ""))
         self.name.setPlaceholderText("π.χ. Γεώργιος Παπαδόπουλος  *")
@@ -105,7 +105,7 @@ class AnalystDialog(QDialog):
         layout.setSpacing(12)
 
         form = QFormLayout()
-        form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        form.setLabelAlignment(Qt.AlignRight)
 
         self.name = QLineEdit(self.data.get("name", ""))
         self.name.setPlaceholderText("π.χ. Μαρία Κωνσταντίνου  *")
@@ -164,7 +164,7 @@ class AnalysisTypeDialog(QDialog):
         layout.setSpacing(12)
 
         form = QFormLayout()
-        form.setLabelAlignment(Qt.AlignmentFlag.AlignRight)
+        form.setLabelAlignment(Qt.AlignRight)
 
         self.name = QLineEdit(self.data.get("name", ""))
         self.name.setPlaceholderText("π.χ. Μικροβιολογική Ανάλυση  *")

@@ -3,13 +3,13 @@ dashboard_view.py
 Κεντρική οθόνη με στατιστικά και σύνοψη.
 """
 
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QScrollArea, QFrame, QGridLayout, QTableWidget,
     QTableWidgetItem, QHeaderView, QAbstractItemView, QPushButton
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont, QColor
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QColor
 
 from database.db_manager import STATUS_COLORS, status_label
 from models.crud import get_dashboard_stats, get_all_samples
@@ -25,7 +25,7 @@ class StatCard(QFrame):
             }}
         """)
         layout = QVBoxLayout(self)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.setAlignment(Qt.AlignCenter)
 
         self._val_label = QLabel(str(value))
         f = QFont()
@@ -33,11 +33,11 @@ class StatCard(QFrame):
         f.setBold(True)
         self._val_label.setFont(f)
         self._val_label.setStyleSheet("color: white;")
-        self._val_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self._val_label.setAlignment(Qt.AlignCenter)
 
         txt_label = QLabel(label)
         txt_label.setStyleSheet("color: rgba(255,255,255,0.85); font-size: 12px;")
-        txt_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        txt_label.setAlignment(Qt.AlignCenter)
         txt_label.setWordWrap(True)
 
         layout.addWidget(self._val_label)
@@ -110,11 +110,11 @@ class DashboardView(QWidget):
         self.recent_table.setHorizontalHeaderLabels([
             "Κωδικός", "Batch", "Πελάτης", "Ανάλυση", "Κατάσταση", "Ημ. Εισαγωγής"
         ])
-        self.recent_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.recent_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.recent_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.recent_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.recent_table.setAlternatingRowColors(True)
         self.recent_table.verticalHeader().setVisible(False)
-        self.recent_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.recent_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         layout.addWidget(self.recent_table)
 
     def refresh(self):

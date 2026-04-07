@@ -3,14 +3,14 @@ samples_view.py
 Οθόνη Batches & Samples — καθημερινή ροή εργασίας.
 """
 
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSplitter,
     QTableWidget, QTableWidgetItem, QHeaderView,
     QPushButton, QMessageBox, QAbstractItemView,
     QComboBox, QLineEdit, QFrame
 )
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QFont, QColor
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QFont, QColor
 
 from database.db_manager import STATUS_COLORS, STATUSES, status_label
 from models.crud import (
@@ -55,7 +55,7 @@ class SamplesView(QWidget):
         title.setFont(f)
         layout.addWidget(title)
 
-        splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter = QSplitter(Qt.Horizontal)
 
         # ── LEFT: Batches panel ──────────────────────────────────────────────
         left = QWidget()
@@ -80,9 +80,9 @@ class SamplesView(QWidget):
         self.batch_table = QTableWidget()
         self.batch_table.setColumnCount(4)
         self.batch_table.setHorizontalHeaderLabels(["Κωδικός", "Πελάτης", "Παραλαβή", "Δείγ."])
-        self.batch_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.batch_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.batch_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.batch_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.batch_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.batch_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.batch_table.setAlternatingRowColors(True)
         self.batch_table.verticalHeader().setVisible(False)
         self.batch_table.currentRowChanged.connect(self._batch_selected)
@@ -139,9 +139,9 @@ class SamplesView(QWidget):
             "Κωδικός", "Ανάλυση", "Κατάσταση", "Αναλυτής",
             "Αποτέλεσμα", "Αναμ.(d)", "Ημ. Εισαγωγής"
         ])
-        self.samples_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.samples_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.samples_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.samples_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.samples_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.samples_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.samples_table.setAlternatingRowColors(True)
         self.samples_table.verticalHeader().setVisible(False)
         self.samples_table.doubleClicked.connect(self._update_status)
@@ -175,7 +175,7 @@ class SamplesView(QWidget):
 
     def _new_batch(self):
         dlg = BatchDialog(self.db_path, self)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             try:
                 add_batch(self.db_path, **d)
@@ -191,8 +191,8 @@ class SamplesView(QWidget):
         if QMessageBox.question(
             self, "Διαγραφή",
             f"Διαγραφή batch '{b['batch_code']}' και ΟΛΩΝ των δειγμάτων του;",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+            QMessageBox.Yes | QMessageBox.No
+        ) == QMessageBox.Yes:
             delete_batch(self.db_path, b['id'])
             self.current_batch = None
             self.samples_table.setRowCount(0)
@@ -237,7 +237,7 @@ class SamplesView(QWidget):
                 self.current_batch['id'],
                 self
             )
-            if dlg.exec():
+            if dlg.exec_():
                 d = dlg.get_data()
                 try:
                     add_sample(self.db_path, **d)
@@ -262,7 +262,7 @@ class SamplesView(QWidget):
         if not s:
             return
         dlg = StatusUpdateDialog(self.db_path, s, self)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             update_sample_status(self.db_path, s['id'], d['status'], d['analyst_id'], d['notes'])
             self._load_samples()
@@ -272,7 +272,7 @@ class SamplesView(QWidget):
         if not s:
             return
         dlg = ResultDialog(self.db_path, s, self)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             update_sample_result(
                 self.db_path, s['id'],
@@ -287,7 +287,7 @@ class SamplesView(QWidget):
         # Εμπλουτισμός με batch info
         s['batch_code'] = self.current_batch['batch_code']
         s['client_name'] = self.current_batch['client_name']
-        HistoryDialog(self.db_path, s, self).exec()
+        HistoryDialog(self.db_path, s, self).exec_()
 
     def _delete_sample(self):
         s = self._get_selected_sample()
@@ -296,8 +296,8 @@ class SamplesView(QWidget):
         if QMessageBox.question(
             self, "Διαγραφή",
             f"Διαγραφή δείγματος '{s['sample_code']}';",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+            QMessageBox.Yes | QMessageBox.No
+        ) == QMessageBox.Yes:
             delete_sample(self.db_path, s['id'])
             self._load_samples()
             self._load_batches()

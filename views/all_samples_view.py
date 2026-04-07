@@ -3,14 +3,14 @@ all_samples_view.py
 Συνολική οθόνη δειγμάτων — αναζήτηση και φίλτρα σε ολόκληρη τη βάση.
 """
 
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QTableWidget, QTableWidgetItem, QHeaderView,
     QPushButton, QComboBox, QLineEdit, QMessageBox,
     QAbstractItemView
 )
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QFont, QColor
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QFont, QColor
 
 from database.db_manager import STATUS_COLORS, STATUSES, status_label
 from models.crud import (
@@ -107,11 +107,11 @@ class AllSamplesView(QWidget):
             "Κατάσταση", "Αναλυτής", "Αποτέλεσμα", "Ημ. Εισαγωγής"
         ])
         hh = self.table.horizontalHeader()
-        hh.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
-        hh.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
-        hh.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
-        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        hh.setSectionResizeMode(QHeaderView.ResizeToContents)
+        hh.setSectionResizeMode(0, QHeaderView.Stretch)
+        hh.setSectionResizeMode(2, QHeaderView.Stretch)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setAlternatingRowColors(True)
         self.table.verticalHeader().setVisible(False)
         self.table.doubleClicked.connect(self._update_status)
@@ -177,7 +177,7 @@ class AllSamplesView(QWidget):
         if not s:
             return
         dlg = StatusUpdateDialog(self.db_path, s, self)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             update_sample_status(self.db_path, s['id'], d['status'], d['analyst_id'], d['notes'])
             self._load()
@@ -187,7 +187,7 @@ class AllSamplesView(QWidget):
         if not s:
             return
         dlg = ResultDialog(self.db_path, s, self)
-        if dlg.exec():
+        if dlg.exec_():
             d = dlg.get_data()
             update_sample_result(self.db_path, s['id'], d['result_value'], d['result_notes'], d['analyst_id'])
             self._load()
@@ -196,7 +196,7 @@ class AllSamplesView(QWidget):
         s = self._get_selected()
         if not s:
             return
-        HistoryDialog(self.db_path, s, self).exec()
+        HistoryDialog(self.db_path, s, self).exec_()
 
     def _delete_sample(self):
         s = self._get_selected()
@@ -204,8 +204,8 @@ class AllSamplesView(QWidget):
             return
         if QMessageBox.question(
             self, "Διαγραφή", f"Διαγραφή δείγματος '{s['sample_code']}';",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-        ) == QMessageBox.StandardButton.Yes:
+            QMessageBox.Yes | QMessageBox.No
+        ) == QMessageBox.Yes:
             delete_sample(self.db_path, s['id'])
             self._load()
 

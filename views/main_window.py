@@ -4,13 +4,13 @@ main_window.py
 """
 
 import os
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
     QLabel, QPushButton, QStackedWidget, QFrame,
-    QStatusBar, QMenuBar, QMenu, QMessageBox
+    QStatusBar, QMenuBar, QMenu, QMessageBox, QAction
 )
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QFont, QAction
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QFont
 
 from views.dashboard_view import DashboardView
 from views.master_data_view import MasterDataView
@@ -96,7 +96,7 @@ class MainWindow(QMainWindow):
         sb_layout.addWidget(db_label)
 
         sep = QFrame()
-        sep.setFrameShape(QFrame.Shape.HLine)
+        sep.setFrameShape(QFrame.HLine)
         sep.setStyleSheet("background: #2c3e50; max-height: 1px;")
         sb_layout.addWidget(sep)
         sb_layout.addSpacing(6)
@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
         self.btn_all_samples = SidebarButton("🔍  Όλα τα Δείγματα")
 
         sep2 = QFrame()
-        sep2.setFrameShape(QFrame.Shape.HLine)
+        sep2.setFrameShape(QFrame.HLine)
         sep2.setStyleSheet("background: #2c3e50; max-height: 1px; margin: 6px 0;")
 
         master_label = QLabel("ΡΥΘΜΙΣΕΙΣ")
@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
         sb_layout.addStretch()
 
         sep3 = QFrame()
-        sep3.setFrameShape(QFrame.Shape.HLine)
+        sep3.setFrameShape(QFrame.HLine)
         sep3.setStyleSheet("background: #2c3e50; max-height: 1px;")
         sb_layout.addWidget(sep3)
 
@@ -209,7 +209,7 @@ class MainWindow(QMainWindow):
             self, "Σχετικά με το LabTrack",
             "<b>🧪 LabTrack v1.0</b><br><br>"
             "Mini LIMS — Σύστημα Διαχείρισης Δειγμάτων Εργαστηρίου<br><br>"
-            "Python + PyQt6 + SQLite<br><br>"
+            "Python + PyQt5 + SQLite<br><br>"
             "<i>Για παραμετροποίηση επεξεργαστείτε τα αρχεία στους φακέλους "
             "database/, models/, dialogs/, views/</i>"
         )

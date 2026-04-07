@@ -4,12 +4,12 @@ startup_dialog.py
 """
 
 import os
-from PyQt6.QtWidgets import (
+from PyQt5.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,
     QFileDialog, QMessageBox, QFrame
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 
 from database.db_manager import create_new_database, validate_and_migrate
 
@@ -20,7 +20,7 @@ class StartupDialog(QDialog):
         self.selected_db_path = None
         self.setWindowTitle("LabTrack — Εκκίνηση")
         self.setMinimumSize(480, 320)
-        self.setWindowFlags(Qt.WindowType.Dialog)
+        self.setWindowFlags(Qt.Dialog)
         self._build_ui()
 
     def _build_ui(self):
@@ -30,19 +30,19 @@ class StartupDialog(QDialog):
 
         # Τίτλος
         title = QLabel("🧪 LabTrack")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title.setAlignment(Qt.AlignCenter)
         f = QFont()
         f.setPointSize(26)
         f.setBold(True)
         title.setFont(f)
 
         subtitle = QLabel("Σύστημα Διαχείρισης Δειγμάτων Εργαστηρίου")
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        subtitle.setAlignment(Qt.AlignCenter)
         subtitle.setStyleSheet("color: #666; font-size: 13px;")
 
         # Διαχωριστής
         line = QFrame()
-        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShape(QFrame.HLine)
         line.setStyleSheet("color: #ddd;")
 
         # Κουμπιά
@@ -78,7 +78,7 @@ class StartupDialog(QDialog):
         layout.addWidget(btn_new)
         layout.addWidget(btn_import)
         layout.addStretch()
-        layout.addWidget(btn_exit, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(btn_exit, alignment=Qt.AlignCenter)
 
     def _new_database(self):
         path, _ = QFileDialog.getSaveFileName(
