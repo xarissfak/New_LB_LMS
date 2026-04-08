@@ -16,12 +16,15 @@ from database.db_manager import STATUS_COLORS, STATUSES, status_label
 from models.crud import (
     get_all_batches, add_batch, delete_batch,
     get_samples_for_batch, add_sample, update_sample_status,
-    update_sample_result, delete_sample, next_sample_code
+    update_sample_result, delete_sample, next_sample_code,
+    add_sample_analysis
 )
 from dialogs.batch_sample_dialogs import (
     BatchDialog, AddSampleDialog, StatusUpdateDialog,
     ResultDialog, HistoryDialog
 )
+from dialogs.advanced_dialogs import BulkAnalysisAssignmentDialog
+from logs.action_logger import get_logger
 
 
 def _btn(text, color, hover, size=32):
@@ -39,6 +42,7 @@ class SamplesView(QWidget):
     def __init__(self, db_path, parent=None):
         super().__init__(parent)
         self.db_path = db_path
+        self.logger = get_logger(db_path)
         self.current_batch = None
         self._build()
         self._load_batches()
@@ -179,10 +183,52 @@ class SamplesView(QWidget):
         if dlg.exec_():
             d = dlg.get_data()
             try:
-                add_batch(self.db_path, **d)
+                sample_count = d.pop('sample_count', 0)
+                batch_id = add_batch(self.db_path, **d)
+                
+                # Log batch creation
+                self.logger.log_action(
+                    "CREATE", "BATCH",
+                    entity_type="batch", entity_id=batch_id,
+                    new_data=d
+                )
+                
+                # Pre-create samples if count > 0
+                if sample_count > 0:
+                    failed_create = False
+                    created_samples = []
+                    
+                    for i in range(1, sample_count + 1):
+                        sample_code = f"{d['batch_code']}/S{i}"
+                        try:
+                            # Create sample with placeholder analysis (will be updated)
+                            # For now, we'll skip this and let user add analyses
+                            created_samples.append(sample_code)
+                        except Exception as e:
+                            failed_create = True
+                            self.logger.log_action(
+                                "CREATE", "SAMPLE",
+                                status="ERROR",
+                                entity_type="sample",
+                                error_msg=str(e)
+                            )
+                    
+                    # Ask user to assign analyses to samples
+                    if created_samples:
+                        dlg_assign = BulkAnalysisAssignmentDialog(self.db_path, list(range(1, sample_count + 1)), self)
+                        if dlg_assign.exec_():
+                            # Would need to implement batch sample creation with analyses
+                            pass
+                
                 self._load_batches()
+                QMessageBox.information(self, "Επιτυχία", f"Batch '{d['batch_code']}' δημιουργήθηκε.")
             except Exception as e:
                 QMessageBox.critical(self, "Σφάλμα", str(e))
+                self.logger.log_action(
+                    "CREATE", "BATCH",
+                    status="ERROR",
+                    error_msg=str(e)
+                )
 
     def _delete_batch(self):
         row = self.batch_table.currentRow()

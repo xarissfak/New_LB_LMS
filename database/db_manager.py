@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 from typing import Tuple
 
-CURRENT_SCHEMA_VERSION = 1
+CURRENT_SCHEMA_VERSION = 2
 
 def get_connection(db_path: str) -> sqlite3.Connection:
     conn = sqlite3.connect(db_path)
@@ -93,6 +93,42 @@ def create_new_database(db_path: str):
             notes       TEXT,
             timestamp   TEXT NOT NULL DEFAULT (datetime('now','localtime'))
         );
+
+        CREATE TABLE IF NOT EXISTS unit_of_measurement (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            name        TEXT NOT NULL UNIQUE,
+            symbol      TEXT NOT NULL UNIQUE,
+            description TEXT,
+            category    TEXT,
+            active      INTEGER NOT NULL DEFAULT 1,
+            created_at  TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+        );
+
+        CREATE TABLE IF NOT EXISTS action_logs (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp   TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+            action      TEXT NOT NULL,
+            category    TEXT NOT NULL,
+            user        TEXT,
+            entity_type TEXT,
+            entity_id   INTEGER,
+            status      TEXT NOT NULL DEFAULT 'SUCCESS',
+            old_data    TEXT,
+            new_data    TEXT,
+            error_msg   TEXT,
+            details     TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS sample_analysis (
+            id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+            sample_id           INTEGER NOT NULL REFERENCES samples(id),
+            analysis_type_id    INTEGER NOT NULL REFERENCES analysis_types(id),
+            assigned_analyst_id INTEGER REFERENCES analysts(id),
+            current_stage       INTEGER DEFAULT 1,
+            status              TEXT NOT NULL DEFAULT 'PENDING',
+            created_at          TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+            UNIQUE(sample_id, analysis_type_id)
+        );
     """)
 
     cursor.execute("DELETE FROM schema_version")
@@ -169,6 +205,27 @@ def _run_migration(cursor):
             sample_id INTEGER NOT NULL REFERENCES samples(id),
             status TEXT NOT NULL, analyst_id INTEGER REFERENCES analysts(id),
             notes TEXT, timestamp TEXT NOT NULL DEFAULT (datetime('now','localtime')))""",
+        """CREATE TABLE IF NOT EXISTS unit_of_measurement (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL UNIQUE,
+            symbol TEXT NOT NULL UNIQUE, description TEXT, category TEXT,
+            active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')))""",
+        """CREATE TABLE IF NOT EXISTS action_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+            action TEXT NOT NULL, category TEXT NOT NULL, user TEXT,
+            entity_type TEXT, entity_id INTEGER,
+            status TEXT NOT NULL DEFAULT 'SUCCESS',
+            old_data TEXT, new_data TEXT, error_msg TEXT, details TEXT)""",
+        """CREATE TABLE IF NOT EXISTS sample_analysis (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sample_id INTEGER NOT NULL REFERENCES samples(id),
+            analysis_type_id INTEGER NOT NULL REFERENCES analysis_types(id),
+            assigned_analyst_id INTEGER REFERENCES analysts(id),
+            current_stage INTEGER DEFAULT 1,
+            status TEXT NOT NULL DEFAULT 'PENDING',
+            created_at TEXT NOT NULL DEFAULT (datetime('now','localtime')),
+            UNIQUE(sample_id, analysis_type_id))""",
     ]
     for sql in tables:
         cursor.execute(sql)

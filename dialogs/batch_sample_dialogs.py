@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
     QLineEdit, QTextEdit, QComboBox, QDateEdit,
     QPushButton, QLabel, QMessageBox, QTableWidget,
     QTableWidgetItem, QHeaderView, QFrame, QSplitter,
-    QListWidget, QListWidgetItem, QAbstractItemView
+    QListWidget, QListWidgetItem, QAbstractItemView, QSpinBox
 )
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QColor, QFont
@@ -33,13 +33,13 @@ def _btn(text, color, hover):
 # ─── BATCH DIALOG ─────────────────────────────────────────────────────────────
 
 class BatchDialog(QDialog):
-    """Δημιουργία νέου Batch."""
+    """Δημιουργία νέου Batch με προδιαγραφή αριθμού δειγμάτων."""
 
     def __init__(self, db_path, parent=None):
         super().__init__(parent)
         self.db_path = db_path
         self.setWindowTitle("Νέο Batch")
-        self.setMinimumWidth(420)
+        self.setMinimumWidth(500)
         self._build()
 
     def _build(self):
@@ -66,6 +66,13 @@ class BatchDialog(QDialog):
         self.received_date.setCalendarPopup(True)
         self.received_date.setDisplayFormat("dd/MM/yyyy")
 
+        # ΝΕΟΣ ΚΩΔΙΚΑΣ: Αριθμός δειγμάτων που φέρθηκαν
+        self.sample_count = QSpinBox()
+        self.sample_count.setMinimum(1)
+        self.sample_count.setMaximum(100)
+        self.sample_count.setValue(1)
+        self.sample_count.setToolTip("Πόσα δείγματα φέρθηκαν στο batch;")
+
         self.notes = QTextEdit()
         self.notes.setMaximumHeight(60)
         self.notes.setPlaceholderText("Σημειώσεις batch...")
@@ -73,6 +80,7 @@ class BatchDialog(QDialog):
         form.addRow("Πελάτης *", self.client_combo)
         form.addRow("Κωδικός Batch", self.batch_code)
         form.addRow("Ημ. Παραλαβής", self.received_date)
+        form.addRow("Αριθμός Δειγμάτων *", self.sample_count)
         form.addRow("Σημειώσεις", self.notes)
 
         layout.addLayout(form)
@@ -103,6 +111,9 @@ class BatchDialog(QDialog):
         if not self.batch_code.text().strip():
             QMessageBox.warning(self, "Υποχρεωτικό", "Ο κωδικός batch είναι υποχρεωτικός.")
             return
+        if self.sample_count.value() < 1:
+            QMessageBox.warning(self, "Υποχρεωτικό", "Ο αριθμός δειγμάτων πρέπει να είναι τουλάχιστον 1.")
+            return
         self.accept()
 
     def get_data(self) -> dict:
@@ -111,6 +122,7 @@ class BatchDialog(QDialog):
             "client_id": self.client_combo.currentData(),
             "received_date": self.received_date.date().toString("yyyy-MM-dd"),
             "notes": self.notes.toPlainText().strip(),
+            "sample_count": self.sample_count.value(),
         }
 
 

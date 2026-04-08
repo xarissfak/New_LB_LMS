@@ -15,8 +15,10 @@ from models.crud import (
     get_all_clients, add_client, update_client, delete_client,
     get_all_analysts, add_analyst, update_analyst, delete_analyst,
     get_all_analysis_types, add_analysis_type, update_analysis_type, delete_analysis_type,
+    get_all_units_no_filter, add_unit, update_unit, delete_unit
 )
 from dialogs.master_dialogs import ClientDialog, AnalystDialog, AnalysisTypeDialog
+from dialogs.advanced_dialogs import UnitOfMeasurementDialog, UnitsManagerDialog
 
 
 def _btn(text, color, hover, size=32):
@@ -50,6 +52,7 @@ class MasterDataView(QWidget):
         tabs.addTab(self._build_clients_tab(), "👥 Πελάτες")
         tabs.addTab(self._build_analysts_tab(), "🔬 Αναλυτές")
         tabs.addTab(self._build_analysis_types_tab(), "🧪 Είδη Ανάλυσης")
+        tabs.addTab(self._build_units_tab(), "📐 Μονάδες Μέτρησης")
         layout.addWidget(tabs)
         self.tabs = tabs
 
@@ -316,3 +319,101 @@ class MasterDataView(QWidget):
         self._load_clients()
         self._load_analysts()
         self._load_analysis_types()
+        self._load_units()
+
+    # ── UNITS OF MEASUREMENT ──────────────────────────────────────────────────
+
+    def _build_units_tab(self):
+        w = QWidget()
+        layout = QVBoxLayout(w)
+
+        toolbar = QHBoxLayout()
+        btn_manager = _btn("🎯 Διαχείριση", "#9b59b6", "#8e44ad")
+        btn_add = _btn("➕ Νέα Μονάδα", "#2ecc71", "#27ae60")
+        btn_edit = _btn("✏️ Επεξεργασία", "#3498db", "#2980b9")
+        btn_del = _btn("🗑 Διαγραφή", "#e74c3c", "#c0392b")
+        btn_manager.clicked.connect(self._manage_units)
+        btn_add.clicked.connect(self._add_unit)
+        btn_edit.clicked.connect(self._edit_unit)
+        btn_del.clicked.connect(self._delete_unit)
+        toolbar.addWidget(btn_manager)
+        toolbar.addWidget(btn_add)
+        toolbar.addWidget(btn_edit)
+        toolbar.addWidget(btn_del)
+        toolbar.addStretch()
+        layout.addLayout(toolbar)
+
+        self.units_table = QTableWidget()
+        self.units_table.setColumnCount(4)
+        self.units_table.setHorizontalHeaderLabels(["Όνομα", "Σύμβολο", "Κατηγορία", "Περιγραφή"])
+        self.units_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.units_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.units_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.units_table.setAlternatingRowColors(True)
+        self.units_table.verticalHeader().setVisible(False)
+        self.units_table.doubleClicked.connect(self._edit_unit)
+        layout.addWidget(self.units_table)
+
+        self._load_units()
+        return w
+
+    def _load_units(self):
+        data = get_all_units_no_filter(self.db_path)
+        self.units_data = data
+        t = self.units_table
+        t.setRowCount(len(data))
+        for row, u in enumerate(data):
+            t.setItem(row, 0, QTableWidgetItem(u['name']))
+            t.setItem(row, 1, QTableWidgetItem(u['symbol']))
+            t.setItem(row, 2, QTableWidgetItem(u.get('category', "")))
+            t.setItem(row, 3, QTableWidgetItem(u.get('description', "")))
+            t.item(row, 0).setData(Qt.UserRole, u['id'])
+
+    def _manage_units(self):
+        """Ανοίγει το dialog διαχείρισης μονάδων."""
+        dlg = UnitsManagerDialog(self.db_path, self)
+        dlg.exec_()
+        self._load_units()
+
+    def _add_unit(self):
+        dlg = UnitOfMeasurementDialog(self)
+        if dlg.exec_():
+            d = dlg.get_data()
+            success, msg = add_unit(self.db_path, d['name'], d['symbol'], d['description'], d['category'])
+            if success:
+                QMessageBox.information(self, "Επιτυχία", "Η μονάδα προστέθηκε με επιτυχία.")
+                self._load_units()
+            else:
+                QMessageBox.critical(self, "Σφάλμα", f"Σφάλμα: {msg}")
+
+    def _edit_unit(self):
+        row = self.units_table.currentRow()
+        if row < 0:
+            QMessageBox.information(self, "Επιλογή", "Επιλέξτε μονάδα πρώτα.")
+            return
+        u = self.units_data[row]
+        dlg = UnitOfMeasurementDialog(self, data=u)
+        dlg.setWindowTitle("Επεξεργασία Μονάδας Μέτρησης")
+        if dlg.exec_():
+            d = dlg.get_data()
+            success, msg = update_unit(self.db_path, u['id'], d['name'], d['symbol'], d['description'], d['category'])
+            if success:
+                QMessageBox.information(self, "Επιτυχία", msg)
+                self._load_units()
+            else:
+                QMessageBox.critical(self, "Σφάλμα", f"Σφάλμα: {msg}")
+
+    def _delete_unit(self):
+        row = self.units_table.currentRow()
+        if row < 0:
+            return
+        u = self.units_data[row]
+        if QMessageBox.question(
+            self, "Διαγραφή", f"Διαγραφή μονάδας '{u['name']}';\n(Θα αποενεργοποιηθεί, όχι διαγραθεί)",
+            QMessageBox.Yes | QMessageBox.No
+        ) == QMessageBox.Yes:
+            try:
+                delete_unit(self.db_path, u['id'])
+                self._load_units()
+            except Exception as e:
+                QMessageBox.critical(self, "Σφάλμα", str(e))

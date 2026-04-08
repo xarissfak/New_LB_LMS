@@ -5,6 +5,7 @@ models.py
 
 from database.db_manager import get_connection
 from datetime import datetime
+import sqlite3
 
 
 # ─── CLIENTS ──────────────────────────────────────────────────────────────────
@@ -325,3 +326,133 @@ def get_dashboard_stats(db_path):
 
     conn.close()
     return stats
+
+
+# ─── UNIT OF MEASUREMENT ──────────────────────────────────────────────────────
+
+def get_all_units(db_path):
+    """Ανακτά όλες τις μονάδες μέτρησης."""
+    conn = get_connection(db_path)
+    rows = conn.execute(
+        "SELECT * FROM unit_of_measurement WHERE active=1 ORDER BY category, name"
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def get_all_units_no_filter(db_path):
+    """Ανακτά όλες τις μονάδες μέτρησης (ενεργές και ανενεργές)."""
+    conn = get_connection(db_path)
+    rows = conn.execute(
+        "SELECT * FROM unit_of_measurement ORDER BY category, name"
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def add_unit(db_path, name, symbol, description="", category=""):
+    """Προσθέτει νέα μονάδα μέτρησης."""
+    conn = get_connection(db_path)
+    try:
+        conn.execute(
+            """INSERT INTO unit_of_measurement (name, symbol, description, category)
+               VALUES (?,?,?,?)""",
+            (name, symbol, description, category)
+        )
+        conn.commit()
+        last_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        conn.close()
+        return True, last_id
+    except sqlite3.IntegrityError as e:
+        conn.close()
+        return False, str(e)
+
+def update_unit(db_path, unit_id, name, symbol, description="", category="", active=1):
+    """Ενημερώνει μονάδα μέτρησης."""
+    conn = get_connection(db_path)
+    try:
+        conn.execute(
+            """UPDATE unit_of_measurement
+               SET name=?, symbol=?, description=?, category=?, active=?
+               WHERE id=?""",
+            (name, symbol, description, category, active, unit_id)
+        )
+        conn.commit()
+        conn.close()
+        return True, "Η μονάδα ενημερώθηκε με επιτυχία"
+    except sqlite3.IntegrityError as e:
+        conn.close()
+        return False, str(e)
+
+def delete_unit(db_path, unit_id):
+    """Διαγράφει (soft delete) μονάδα μέτρησης."""
+    conn = get_connection(db_path)
+    conn.execute(
+        "UPDATE unit_of_measurement SET active=0 WHERE id=?",
+        (unit_id,)
+    )
+    conn.commit()
+    conn.close()
+
+def get_unit_by_id(db_path, unit_id):
+    """Ανακτά μονάδα μέτρησης κατά ID."""
+    conn = get_connection(db_path)
+    row = conn.execute(
+        "SELECT * FROM unit_of_measurement WHERE id=?",
+        (unit_id,)
+    ).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+# ─── SAMPLE ANALYSIS (Multi-Analysis Support) ────────────────────────────────
+
+def add_sample_analysis(db_path, sample_id, analysis_type_id, assigned_analyst_id=None):
+    """Προσθέτει ανάλυση σε δείγμα."""
+    conn = get_connection(db_path)
+    try:
+        conn.execute(
+            """INSERT INTO sample_analysis
+               (sample_id, analysis_type_id, assigned_analyst_id, status)
+               VALUES (?,?,?,'PENDING')""",
+            (sample_id, analysis_type_id, assigned_analyst_id)
+        )
+        conn.commit()
+        conn.close()
+        return True, "Η ανάλυση προστέθηκε"
+    except sqlite3.IntegrityError:
+        conn.close()
+        return False, "Η ανάλυση υπάρχει ήδη"
+
+def get_sample_analyses(db_path, sample_id):
+    """Ανακτά όλες τις αναλύσεις ενός δείγματος."""
+    conn = get_connection(db_path)
+    rows = conn.execute(
+        """SELECT sa.*, at.name as analysis_name, an.name as analyst_name
+           FROM sample_analysis sa
+           JOIN analysis_types at ON at.id = sa.analysis_type_id
+           LEFT JOIN analysts an ON an.id = sa.assigned_analyst_id
+           WHERE sa.sample_id=?
+           ORDER BY sa.created_at""",
+        (sample_id,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+def update_sample_analysis_stage(db_path, sample_analysis_id, stage):
+    """Ενημερώνει το τρέχον στάδιο ανάλυσης."""
+    conn = get_connection(db_path)
+    conn.execute(
+        "UPDATE sample_analysis SET current_stage=? WHERE id=?",
+        (stage, sample_analysis_id)
+    )
+    conn.commit()
+    conn.close()
+
+def delete_sample_analysis(db_path, sample_analysis_id):
+    """Διαγράφει ανάλυση από δείγμα."""
+    conn = get_connection(db_path)
+    conn.execute(
+        "DELETE FROM sample_analysis WHERE id=?",
+        (sample_analysis_id,)
+    )
+    conn.commit()
+    conn.close()
