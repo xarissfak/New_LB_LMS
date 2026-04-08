@@ -1,12 +1,23 @@
 """
-main.py
-Σημείο εκκίνησης εφαρμογής LabTrack.
+main.py - Laboratory Management System (LabTrack)
+Version: 2.0 ✨
 
-Εγκατάσταση:
-    pip install PyQt5
+Advanced laboratory sample and analysis management system with:
+  ✅ Action Logging - Complete audit trail
+  ✅ Undo/Redo System - 20-action stack
+  ✅ Units of Measurement - Master data management
+  ✅ Multi-Stage Analysis - Complex analysis workflows
+  ✅ Range-Based Sampling - Bulk operations (1-4, 7-13)
+  ✅ Comprehensive Logging UI - Search & filter operations
 
-Εκτέλεση:
+Installation:
+    pip install -r requirements.txt
+
+Execution:
     python main.py
+
+For more information:
+    See README.md, FEATURES_GUIDE.md, IMPLEMENTATION_SUMMARY.md
 """
 import sys
 import os

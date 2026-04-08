@@ -1,1 +1,8 @@
+# Laboratory Management System (LB LMS) Requirements
+# Python 3.7+
+
+# GUI Framework
 PyQt5>=5.15.0
+
+# Note: SQLite3 is included with Python by default
+# No additional database packages needed
